@@ -1,4 +1,5 @@
 import os
+import asyncio
 import sqlite3
 import threading
 import secrets
@@ -187,6 +188,11 @@ def health():
     return {"status": "ok"}
 
 def run_bot():
+    # Python 3.14 no longer creates an event loop automatically in new threads.
+    # Create and register one explicitly before python-telegram-bot starts polling.
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     application = Application.builder().token(BOT_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("help", help_cmd))
